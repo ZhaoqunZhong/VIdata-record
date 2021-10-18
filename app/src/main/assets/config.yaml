@@ -1,0 +1,15 @@
+%YAML:1.0
+
+#rgb image config
+record_rgb: 1
+rgb_cam_id: "0"
+rgb_width: 640
+rgb_height: 480
+rgb_focus: 0.0
+rgb_AE_fps_range: [30, 30]
+ts_file_format: ".csv"
+
+#imu config
+imu_fps: 420
+imu_file_format: ".csv"
+
