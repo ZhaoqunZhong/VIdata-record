@@ -260,8 +260,8 @@ void rgbImgReaderCbk(void *context, AImageReader *reader) {
     int64_t time;
     AImage_getTimestamp(image, &time);
     rgb_msg rgbMsg;
-    // rgbMsg.ts = time;
-    rgbMsg.ts = time + rgb_realtime_exposure / 2 + rgb_readout_time / 2;
+    rgbMsg.ts = time;
+    //rgbMsg.ts = time + rgb_realtime_exposure / 2 + rgb_readout_time / 2;
     if (rgbMsg.ts <= rgb_last_ts) {
         AImage_delete(image);
         LOGW("rgb image timestamp disorder!");
