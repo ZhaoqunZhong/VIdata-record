@@ -12,8 +12,8 @@ void PlatformService::start() {
     if (!fs.isOpened()) {
         LOG(ERROR) << "cv::FileStorage open file failed -> " << file_name;
     }
+
     record_rgb = static_cast<int>(fs["record_rgb"]);
-    record_bag = static_cast<int>(fs["record_rosbag"]);
     fs.release();
     if (record_rgb) {
         camPublisher_ = std::make_unique<CamPublisher>(rgb_Callback_,nullptr);
