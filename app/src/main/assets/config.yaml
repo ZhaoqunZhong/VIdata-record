@@ -13,3 +13,6 @@ ts_file_format: ".csv"
 imu_fps: 420
 imu_file_format: ".csv"
 
+#ros bag
+record_rosbag: 1
+
