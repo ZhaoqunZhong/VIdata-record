@@ -26,8 +26,6 @@ using namespace ob_slam::geometry_msgs;
 #define DEFAULT_TOPIC_ACCEL "/acc0"
 #define DEFAULT_TOPIC_GYRO  "/gyr0"
 
-#define PRE_NUM       1402056900000000000
-
 class RosbagPacker {
 
 public:
