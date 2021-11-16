@@ -272,7 +272,7 @@ void rgbImgReaderCbk(void *context, AImageReader *reader) {
     int32_t y_len;
     AImage_getPlaneData(image, 0, &y_data, &y_len);
     cv::Mat y_image(CamPublisher::rgb_height_, CamPublisher::rgb_width_, CV_8UC1, y_data);
-    rgbMsg.yMat = y_image;
+    rgbMsg.yMat = y_image.clone();
 
 #ifdef USE_UV_CH
     uint8_t *uv_data;

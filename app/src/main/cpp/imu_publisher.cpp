@@ -156,8 +156,8 @@ void ImuPublisher::run() {
 	std::vector<ASensorEvent> event_buffer;
 	event_buffer.resize(0);
 	while (imu_publish_on_) {
-		useconds_t thread_sleep_time = static_cast<useconds_t>(SENSOR_REFRESH_PERIOD_US * 0.9);
-		usleep(thread_sleep_time);
+		//useconds_t thread_sleep_time = static_cast<useconds_t>(SENSOR_REFRESH_PERIOD_US * 0.9);
+		//usleep(thread_sleep_time);
 		int ident = ALooper_pollAll(
 				-1,
 				NULL /* no output file descriptor */,
