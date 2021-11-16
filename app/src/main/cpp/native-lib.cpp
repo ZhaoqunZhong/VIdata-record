@@ -8,6 +8,9 @@
 
 DataDumper dataDumper;
 
+PerfMonitor imu_perf, acc_perf, gyr_perf;
+int imu_fps, acc_fps, gyr_fps;
+
 void rgbCallback(rgb_msg &msg) {
 //    TimeLagMeasurer timer;
 //    LOGI("rgb image latency %f", timer.getCurrentTimeSecond() - msg.ts);
@@ -20,18 +23,21 @@ void imuCallback(imu_msg &msg) {
 //    TimeLagMeasurer timer;
 //    LOGI("imu latency %f", timer.getCurrentTimeSecond() - msg.ts);
     dataDumper.dumpImuData(msg);
+    imu_perf.update(imu_fps);
 }
 
 void accCallback(acc_msg &msg) {
 //    TimeLagMeasurer timer;
     dataDumper.dumpAccData(msg);
 //    LOG_EVERY_N(INFO, 10) << "acc dump cost " << timer.lagFromStartSecond()*1e3;
+    acc_perf.update(acc_fps);
 }
 
 void gyrCallback(gyr_msg &msg) {
 //    TimeLagMeasurer timer;
     dataDumper.dumpGyroData(msg);
 //    LOG_EVERY_N(INFO, 10) << "gyr callback function cost " << timer.lagFromStartSecond()*1e3;
+    gyr_perf.update(gyr_fps);
 }
 
 void featureCallback(double ts, std::vector<std::pair<size_t, Eigen::VectorXf>> &features) {
@@ -88,11 +94,11 @@ Java_com_zhaoqun_vidata_MainActivity_stringFromJNI(JNIEnv *env, jobject thiz) {
     std::string fps_string = "";
     if (platformService.imuPublisher_ != nullptr) {
         fps_string =
-                "imu " + std::to_string(platformService.imuPublisher_->imu_realtime_fps_) +
+                "imu " + std::to_string(imu_fps) +
                 " hz" + "\n" +
-                "acc " + std::to_string(platformService.imuPublisher_->acc_realtime_fps_) +
+                "acc " + std::to_string(acc_fps) +
                 " hz" + "\n" +
-                "gyr " + std::to_string(platformService.imuPublisher_->gyr_realtime_fps_) +
+                "gyr " + std::to_string(gyr_fps) +
                 " hz" + "\n";
     }
     if (platformService.camPublisher_ != nullptr) {

@@ -156,7 +156,7 @@ void ImuPublisher::run() {
 	std::vector<ASensorEvent> event_buffer;
 	event_buffer.resize(0);
 	while (imu_publish_on_) {
-		//useconds_t thread_sleep_time = static_cast<useconds_t>(SENSOR_REFRESH_PERIOD_US * 0.9);
+		//useconds_t thread_sleep_time = static_cast<useconds_t>(1000);
 		//usleep(thread_sleep_time);
 		int ident = ALooper_pollAll(
 				-1,
@@ -183,7 +183,7 @@ void ImuPublisher::run() {
 //				if (!checkAccValue(accMsg))
 //					continue;
 				acc_callback_(accMsg);
-				acc_fps_monitor_.update(acc_realtime_fps_);
+
 #ifdef ASSEMBLE_IMU
 				acc_cache_.push_back(accMsg);
 				cur_input = acc;
@@ -202,7 +202,7 @@ void ImuPublisher::run() {
 //				if (!checkGyrValue(gyroMsg))
 //					continue;
 				gyro_callback_(gyroMsg);
-				gyr_fps_monitor_.update(gyr_realtime_fps_);
+
 #ifdef ASSEMBLE_IMU
 				gyro_cache_.push_back(gyroMsg);
 				cur_input = gyr;
@@ -253,7 +253,6 @@ void ImuPublisher::runAcc() {
 /*        if (!checkAccValue(accMsg))
             continue;*/
         acc_callback_(accMsg);
-        acc_fps_monitor_.update(acc_realtime_fps_);
 #ifdef ASSEMBLE_IMU
         pthread_mutex_lock(&cache_mtx_);
         acc_cache_.push_back(accMsg);
@@ -294,7 +293,6 @@ void ImuPublisher::runGyro() {
 /*        if (!checkGyrValue(gyroMsg))
             continue;*/
         gyro_callback_(gyroMsg);
-        gyr_fps_monitor_.update(gyr_realtime_fps_);
 #ifdef ASSEMBLE_IMU
         pthread_mutex_lock(&cache_mtx_);
         gyro_cache_.push_back(gyroMsg);
@@ -344,7 +342,7 @@ void ImuPublisher::constructImuInterpolateAcc() {
                                     acc_cache_.front().ay * (1-factor) + acc_cache_.back().ay *factor,
                                     acc_cache_.front().az * (1-factor) + acc_cache_.back().az *factor};
                     imu_callback_(imu);
-                    imu_fps_monitor_.update(imu_realtime_fps_);
+
                     cur_state = ACC_GYR_ACC;
                 }
             } else {
@@ -367,7 +365,7 @@ void ImuPublisher::constructImuInterpolateAcc() {
                                             acc_cache_.front().ay * (1-factor) + acc_cache_.back().ay *factor,
                                             acc_cache_.front().az * (1-factor) + acc_cache_.back().az *factor};
                             imu_callback_(imu);
-                            imu_fps_monitor_.update(imu_realtime_fps_);
+                            
                         } else {
                             break;
                         }
@@ -384,7 +382,7 @@ void ImuPublisher::constructImuInterpolateAcc() {
                                         acc_cache_.front().ay * (1-factor) + acc_cache_.back().ay *factor,
                                         acc_cache_.front().az * (1-factor) + acc_cache_.back().az *factor};
                         imu_callback_(imu);
-                        imu_fps_monitor_.update(imu_realtime_fps_);
+                        
                     }
                     gyro_cache_.erase(gyro_cache_.begin(), gyro_cache_.begin() + gyro_cache_.size() - 1);
                     cur_state = ACC_GYR_ACC;
@@ -408,7 +406,7 @@ void ImuPublisher::constructImuInterpolateAcc() {
                                     acc_cache_.front().ay * (1-factor) + acc_cache_.back().ay *factor,
                                     acc_cache_.front().az * (1-factor) + acc_cache_.back().az *factor};
                     imu_callback_(imu);
-                    imu_fps_monitor_.update(imu_realtime_fps_);
+
                     gyro_cache_.erase(gyro_cache_.begin());
                 }
             }
@@ -426,7 +424,7 @@ void ImuPublisher::constructImuInterpolateAcc() {
                                     acc_cache_.front().ay * (1-factor) + acc_cache_.back().ay *factor,
                                     acc_cache_.front().az * (1-factor) + acc_cache_.back().az *factor};
                     imu_callback_(imu);
-                    imu_fps_monitor_.update(imu_realtime_fps_);
+
                     gyro_cache_.erase(gyro_cache_.begin());
                 } else if (gyro_cache_.back().ts >= acc_cache_.back().ts) {
                     gyro_cache_.erase(gyro_cache_.begin());
@@ -446,7 +444,7 @@ void ImuPublisher::constructImuInterpolateAcc() {
                                     acc_cache_[i-1].ay * (1-factor) + acc_cache_[i].ay *factor,
                                     acc_cache_[i-1].az * (1-factor) + acc_cache_[i].az *factor};
                     imu_callback_(imu);
-                    imu_fps_monitor_.update(imu_realtime_fps_);
+
                     gyro_cache_.erase(gyro_cache_.begin());
                     acc_cache_.erase(acc_cache_.begin(), acc_cache_.begin() + i-1);
                 }

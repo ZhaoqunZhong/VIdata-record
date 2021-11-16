@@ -58,8 +58,6 @@ class ImuPublisher {
 	AHardwareBuffer *gyro_buffer_;
 	int gyro_channel_;
 
-	PerfMonitor imu_fps_monitor_, acc_fps_monitor_, gyr_fps_monitor_;
-
 public:
 	ImuPublisher(void (*fimu) (imu_msg &), void (*facc)(acc_msg &), void (*fgyro)(gyr_msg &)) {
 		imu_callback_ = fimu;
@@ -78,7 +76,6 @@ public:
 	void start();
 	void stop();
 
-	int imu_realtime_fps_ = 0, acc_realtime_fps_, gyr_realtime_fps_;
 };
 
 
