@@ -9,17 +9,10 @@
 void DataDumper::dumpRgbImage(rgb_msg & image) {
     if (!dump_open_ || image.yMat.empty())
         return;
-    std::ofstream fs(dump_path_ + "rgb_images/timeStamp" + image_ts_file_format_, std::ios::app);
-    fs << image.ts << std::endl;
-    fs.close();
 
-    std::string folder = dump_path_ + "rgb_images/data/";
-    std::string filename = folder + std::to_string(image.ts) + ".png";
-    cv::imwrite(filename, image.yMat); //TODO: make this thread function
-
-    /// rosbag
-    if (record_bag)
-        bag_packer_.writeImage(image.ts, image.yMat.data, image.yMat.rows * image.yMat.cols, image.yMat.cols, image.yMat.rows);
+    pthread_mutex_lock(&acc_mtx_);
+    image_queue_.push(image);
+    pthread_mutex_unlock(&acc_mtx_);
 }
 
 
@@ -123,10 +116,11 @@ void DataDumper::stop() {
 
 
 void DataDumper::imuDumpThreadFunction() {
-    while (dump_open_) {
-        useconds_t thread_sleep_time = static_cast<useconds_t>(100);
+    while (dump_open_ || !acc_queue_.empty() || !gyr_queue_.empty() || !imu_queue_.empty() || !image_queue_.empty()) {
+        useconds_t thread_sleep_time = static_cast<useconds_t>(10);
         usleep(thread_sleep_time);
 
+        /// write imu sensor caches to file
         std::queue<acc_msg> acc_buf; //here is empty
         pthread_mutex_lock(&acc_mtx_);
         if (!acc_queue_.empty()) {
@@ -175,7 +169,31 @@ void DataDumper::imuDumpThreadFunction() {
         }
         imuf.close();
 
-        ///rosbag
+        ///
+        std::queue<rgb_msg> image_buf;
+        pthread_mutex_lock(&image_mtx_);
+        if (!image_queue_.empty()) {
+            std::swap(image_queue_, image_buf);
+        }
+        pthread_mutex_unlock(&image_mtx_);
+        while (!image_buf.empty()) {
+            rgb_msg msg = image_buf.front();
+            image_buf.pop();
+
+            std::ofstream fs(dump_path_ + "rgb_images/timeStamp" + image_ts_file_format_, std::ios::app);
+            fs << msg.ts << std::endl;
+            fs.close();
+
+            std::string folder = dump_path_ + "rgb_images/data/";
+            std::string filename = folder + std::to_string(msg.ts) + ".png";
+            cv::imwrite(filename, msg.yMat); //TODO: make this thread function
+
+            /// rosbag
+            if (record_bag)
+                bag_packer_.writeImage(msg.ts, msg.yMat.data, msg.yMat.rows * msg.yMat.cols, msg.yMat.cols, msg.yMat.rows);
+        }
+
+        ///rosbag caches to file
         bag_packer_.imuMutex_.lock();
         while (!bag_packer_.imu_.empty()) {
             sensor_msgs::Imu msg = bag_packer_.imu_.front();

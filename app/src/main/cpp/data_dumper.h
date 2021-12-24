@@ -26,8 +26,9 @@ private:
     std::queue<acc_msg> acc_queue_;
     std::queue<gyr_msg> gyr_queue_;
     std::queue<imu_msg> imu_queue_;
+    std::queue<rgb_msg> image_queue_;
     pthread_mutex_t acc_mtx_ = PTHREAD_MUTEX_INITIALIZER, gyr_mtx_ = PTHREAD_MUTEX_INITIALIZER,
-    imu_mtx_ = PTHREAD_MUTEX_INITIALIZER;
+    imu_mtx_ = PTHREAD_MUTEX_INITIALIZER, image_mtx_ = PTHREAD_MUTEX_INITIALIZER;
     pthread_t main_th_;
 
     /// rosbag
